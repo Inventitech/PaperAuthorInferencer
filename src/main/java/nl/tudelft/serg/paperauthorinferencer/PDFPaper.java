@@ -1,4 +1,4 @@
-package main;
+package nl.tudelft.serg.paperauthorinferencer;
 
 import java.io.IOException;
 
@@ -27,14 +27,15 @@ public class PDFPaper {
 				e.printStackTrace();
 			}
 		}
-		
-		
 
 	}
-	
+
 	public int pages;
 
 	public String content;
-	
+
+	public String nonRefContent;
+
 	public String lineSeparator;
+
 }

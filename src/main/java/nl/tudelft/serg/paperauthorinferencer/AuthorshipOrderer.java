@@ -1,4 +1,4 @@
-package main;
+package nl.tudelft.serg.paperauthorinferencer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,13 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class AuthorshipOrderer {
 	Map<String, Integer> authorsToFrequency = new HashMap<String, Integer>();
 	Map<String, Author> authors = new HashMap<>();
-	private int max;
+	private int maxAuthors;
+	private int authorThreshold;
+	
+	public AuthorshipOrderer(int maxAuthors, int authorThreshold) {
+		this.maxAuthors = maxAuthors;
+		this.authorThreshold = authorThreshold;
+	}
 
 	public class Author implements Comparable<Author> {
 		String name;
@@ -38,12 +43,12 @@ public class AuthorshipOrderer {
 				r.authors.forEach(t -> {
 					if (authors.containsKey(t)) {
 						Author author = authors.get(t);
-						author.papers += 1;
+						author.papers += r.occurences;
 						authors.put(t, author);
 					} else {
 						Author author = new Author();
 						author.name = t;
-						author.papers = 1;
+						author.papers = r.occurences;
 						authors.put(t, author);
 					}
 				});
@@ -52,28 +57,17 @@ public class AuthorshipOrderer {
 	}
 
 	public void printTopAuthors() {
-		double authorThreshold = 0.65;
-		int maxAuthors = 5;
 		List<Author> authorEntries = new ArrayList<>(authors.values());
 		authorEntries.forEach(t -> {
-			max = Math.max(max, t.papers);
+			maxAuthors = Math.max(maxAuthors, t.papers);
 		});
 
 		List<Author> authorGuess = authorEntries.stream().filter(a -> {
-			return a.papers >= authorThreshold * max;
+			return a.papers >= authorThreshold * maxAuthors;
 		}).collect(Collectors.toList());
 		Collections.sort(authorGuess, Collections.reverseOrder());
 		authorGuess = authorGuess.stream().limit(maxAuthors)
 				.collect(Collectors.toList());
 		System.out.println(authorGuess);
-	}
-
-	public static void main(String[] args) {
-		System.out.println("Reading " + args[0]);
-
-		PDFPaper paper = new PDFPaper(args[0]);
-		ReferenceLocator referenceLocator = new ReferenceLocator(paper);
-		referenceLocator.locateReferences();
-		new AuthorshipOrderer(referenceLocator.references).printTopAuthors();
 	}
 }

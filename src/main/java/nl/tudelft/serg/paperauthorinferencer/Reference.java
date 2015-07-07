@@ -1,4 +1,4 @@
-package main;
+package nl.tudelft.serg.paperauthorinferencer;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,11 +10,11 @@ public class Reference {
 
 	public String identifier;
 	public Set<String> authors = new HashSet<String>();
-	public int referreed;
+	public int occurences;
 
 	@Override
 	public String toString() {
-		return identifier + ": " + authors.stream().reduce("", (a, b) -> a + b+ ", " )
-				+ "\n";
+		return identifier + ": "
+				+ authors.stream().reduce("", (a, b) -> a + b + ", ") + "\n";
 	}
 }

@@ -1,15 +1,15 @@
-package main;
+package nl.tudelft.serg.paperauthorinferencer;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ReferenceLocator {
+public class ReferenceListBuilder {
 	private PDFPaper pdfPaper;
 	public Set<Reference> references = new HashSet<Reference>();
 
-	public ReferenceLocator(PDFPaper pdfPaper) {
+	public ReferenceListBuilder(PDFPaper pdfPaper) {
 		this.pdfPaper = pdfPaper;
 	}
 
@@ -25,7 +25,8 @@ public class ReferenceLocator {
 	public void locateReferences() {
 		String[] individualLines = pdfPaper.content
 				.split(pdfPaper.lineSeparator);
-
+		StringBuilder nonRefContentBuilder = new StringBuilder();
+		
 		String curReference = "";
 
 		ReferenceFindingState state = ReferenceFindingState.NONE;
@@ -57,10 +58,13 @@ public class ReferenceLocator {
 			default:
 				if (line.matches("(?i)^(\\d. )*(references|literature)$")) {
 					state = ReferenceFindingState.NEW_REF_TAG;
+				} else {
+					nonRefContentBuilder.append(line).append(pdfPaper.lineSeparator);
 				}
-
 			}
 		}
+		
+		pdfPaper.nonRefContent = nonRefContentBuilder.toString();
 	}
 
 	private Pattern compileReferencePattern() {
@@ -85,7 +89,7 @@ public class ReferenceLocator {
 		String comma = ", ";
 		String and = "and ";
 		String commaAnd = comma + and;
-		
+
 		referenceEntry = referenceEntry.trim();
 
 		boolean lastEntry = false;

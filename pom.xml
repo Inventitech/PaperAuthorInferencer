@@ -1,13 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>PaperAuthorInferencer</groupId>
-	<artifactId>PaperAuthorInferencer</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>nl.tudelft.swerl</groupId>
+  <artifactId>paper-author-inferencer</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
 	<name>PaperAuthorInferencer</name>
 	<description>PaperAuthorInferencer tries to infer the authors of a given paper in PDF format without looking at the author line.</description>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -33,7 +31,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>main.AuthorshipOrderer</mainClass>
+							<mainClass>nl.tudelft.serg.paperauthorinferencer.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -59,6 +57,16 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.3.1</version>
 		</dependency>
 	</dependencies>
 </project>

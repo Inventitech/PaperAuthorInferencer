@@ -1,8 +1,8 @@
-package test;
+package nl.tudelft.serg.paperauthorinferencer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import main.PDFPaper;
+import nl.tudelft.serg.paperauthorinferencer.PDFPaper;
 
 import org.junit.Test;
 
