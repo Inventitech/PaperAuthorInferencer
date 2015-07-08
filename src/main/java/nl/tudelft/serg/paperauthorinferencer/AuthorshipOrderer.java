@@ -2,40 +2,41 @@ package nl.tudelft.serg.paperauthorinferencer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class AuthorshipOrderer {
 	Map<String, Integer> authorsToFrequency = new HashMap<String, Integer>();
 	Map<String, Author> authors = new HashMap<>();
 	private int maxAuthors;
-	private int authorThreshold;
-	
-	public AuthorshipOrderer(int maxAuthors, int authorThreshold) {
+	private int highestScore;
+	private float authorThreshold;
+
+	public AuthorshipOrderer(int maxAuthors, float authorThreshold) {
 		this.maxAuthors = maxAuthors;
 		this.authorThreshold = authorThreshold;
 	}
 
 	public class Author implements Comparable<Author> {
 		String name;
-		int papers;
+		int score;
 
 		@Override
 		public int compareTo(Author o) {
-			return papers < o.papers ? -1 : (papers == o.papers) ? 0 : 1;
+			return score < o.score ? -1 : (score == o.score) ? 0 : 1;
 		}
 
 		@Override
 		public String toString() {
-			return name + ": " + papers;
+			return name + ": " + score;
 		}
 	}
 
-	public AuthorshipOrderer(Set<Reference> references) {
+	public void orderReferences(Set<Reference> references) {
 		references.forEach(new Consumer<Reference>() {
 
 			@Override
@@ -43,12 +44,12 @@ public class AuthorshipOrderer {
 				r.authors.forEach(t -> {
 					if (authors.containsKey(t)) {
 						Author author = authors.get(t);
-						author.papers += r.occurences;
+						author.score += r.occurences;
 						authors.put(t, author);
 					} else {
 						Author author = new Author();
 						author.name = t;
-						author.papers = r.occurences;
+						author.score = r.occurences;
 						authors.put(t, author);
 					}
 				});
@@ -58,16 +59,14 @@ public class AuthorshipOrderer {
 
 	public void printTopAuthors() {
 		List<Author> authorEntries = new ArrayList<>(authors.values());
-		authorEntries.forEach(t -> {
-			maxAuthors = Math.max(maxAuthors, t.papers);
-		});
+		highestScore = authorEntries.stream().map(t -> {
+			return t.score;
+		}).max(Integer::compare).get();
 
-		List<Author> authorGuess = authorEntries.stream().filter(a -> {
-			return a.papers >= authorThreshold * maxAuthors;
-		}).collect(Collectors.toList());
-		Collections.sort(authorGuess, Collections.reverseOrder());
-		authorGuess = authorGuess.stream().limit(maxAuthors)
-				.collect(Collectors.toList());
-		System.out.println(authorGuess);
+		authorEntries.stream().filter(a -> {
+			return a.score >= authorThreshold * highestScore;
+		}).sorted(Collections.reverseOrder()).limit(maxAuthors).forEach(t -> {
+			System.out.println(t);
+		});
 	}
 }
