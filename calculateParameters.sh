@@ -10,11 +10,13 @@ then
 fi
 
 echo "file, maxAuthors, percentage, result" >> $OUTPUT
-for authors in $(seq 5)
+
+
+for f in $FILES
 do
-	for perc in $(seq 0 0.05 1)
+	for authors in $(seq 5)
 	do
-		for f in $FILES
+		for perc in $(seq 0 0.05 1)
 		do
 		  echo "Processing file $f with $authors authors and $perc ratio ..."
 		  RESULT=$(java -jar target/paper-author-inferencer-0.0.1-SNAPSHOT-jar-with-dependencies.jar $f -n $authors -t $perc)
