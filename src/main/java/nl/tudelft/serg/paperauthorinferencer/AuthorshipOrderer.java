@@ -2,7 +2,6 @@ package nl.tudelft.serg.paperauthorinferencer;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,14 +58,13 @@ public class AuthorshipOrderer {
 
 	public void printTopAuthors() {
 		List<Author> authorEntries = new ArrayList<>(authors.values());
-		highestScore = authorEntries.stream().map(t -> {
-			return t.score;
-		}).max(Integer::compare).get();
+		highestScore = authorEntries.stream().map(t -> t.score)
+				.max(Integer::compare).get();
 
 		authorEntries.stream().filter(a -> {
 			return a.score >= authorThreshold * highestScore;
 		}).sorted(Collections.reverseOrder()).limit(maxAuthors).forEach(t -> {
-			System.out.println(t);
+			System.out.print(t + "; ");
 		});
 	}
 }

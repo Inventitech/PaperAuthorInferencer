@@ -41,8 +41,6 @@ public class Main {
 			e.printStackTrace();
 		}
 
-		System.out.println("Reading " + pdfDocument);
-
 		PDFPaper paper = new PDFPaper(pdfDocument);
 		ReferenceListBuilder referenceLocator = new ReferenceListBuilder(paper);
 		referenceLocator.locateReferences();
