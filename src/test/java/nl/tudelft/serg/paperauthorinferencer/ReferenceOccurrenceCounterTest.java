@@ -15,7 +15,6 @@ public class ReferenceOccurrenceCounterTest {
 	@BeforeClass
 	public static void setupPDFPaper() {
 		pdf = new PDFPaper("src/test/resources/msr2014.pdf");
-
 	}
 
 	@Test

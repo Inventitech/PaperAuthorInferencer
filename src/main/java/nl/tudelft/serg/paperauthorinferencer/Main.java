@@ -9,7 +9,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 public class Main {
-	/** Default values, overriden if specified */
+	/** Default values, overridden if specified */
 	private static int maxAuthors = 4;
 	private static float authorThreshold = 0.60f;
 	private static boolean printPDFPath = false;
