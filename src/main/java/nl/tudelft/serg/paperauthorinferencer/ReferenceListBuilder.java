@@ -84,13 +84,15 @@ public class ReferenceListBuilder {
 	}
 
 	/** Recursively adds authors until there are no more authors left. */
-	private void addAuthors(String referenceEntry, Reference reference) {
+	static void addAuthors(String referenceEntry, Reference reference) {
 		String period = ".";
 		String comma = ", ";
 		String and = "and ";
 		String commaAnd = comma + and;
 
 		referenceEntry = referenceEntry.trim();
+		// evil fix against double -
+		referenceEntry = referenceEntry.replace("--","  ");
 
 		boolean lastEntry = false;
 		if (referenceEntry.startsWith(period))
@@ -105,7 +107,8 @@ public class ReferenceListBuilder {
 			referenceEntry = referenceEntry.replaceFirst(comma, "");
 		}
 
-		String authorRegEx = "^(([A-Z]\\. )[A-Z][a-z]{1,}).*";
+		
+		String authorRegEx = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,2}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
 		Pattern pattern = Pattern.compile(authorRegEx);
 		Matcher matcher = pattern.matcher(referenceEntry);
 		if (!matcher.find()) {

@@ -10,7 +10,7 @@ import org.apache.commons.cli.ParseException;
 
 public class Main {
 	/** Default values, overridden if specified */
-	private static int maxAuthors = 4;
+	private static int maxAuthors = Integer.MAX_VALUE;
 	private static float authorThreshold = 0.60f;
 	private static boolean printPDFPath = false;
 
@@ -27,7 +27,7 @@ public class Main {
 		if (printPDFPath) {
 			System.out.println(pdfDocument);
 		}
-		
+
 		PDFPaper paper = new PDFPaper(pdfDocument);
 		ReferenceListBuilder referenceLocator = new ReferenceListBuilder(paper);
 		referenceLocator.locateReferences();
@@ -39,7 +39,7 @@ public class Main {
 				authorThreshold);
 
 		orderer.orderReferences(occurenceCounter.references);
-		
+
 		orderer.printTopAuthors();
 		if (printPDFPath) {
 			System.out.println();
