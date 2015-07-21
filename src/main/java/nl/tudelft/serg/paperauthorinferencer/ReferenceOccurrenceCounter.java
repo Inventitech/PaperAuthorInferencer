@@ -30,26 +30,42 @@ public class ReferenceOccurrenceCounter {
 		Matcher matcher = pattern.matcher(paper.nonRefContent);
 		while (matcher.find()) {
 			String group = matcher.group(1);
-			if (group.contains(", ")) {
-				List<String> subRefs = Arrays.asList(group.split(", "));
+			String entriesSeparator = ", ";
+			String multipleEntries = "(-|–)";
 
-				addOccurrences(subRefs);
-			} else if (group.contains("-")) {
-				List<String> subRefs = new ArrayList <String> (Arrays
-						.asList(group.split("(-|–)")));
-
-				if (subRefs.size() != 2) {
-					continue;
-				}
-				int from = Integer.valueOf(subRefs.get(0));
-				int to = Integer.valueOf(subRefs.get(1));
-				for (int i = from + 1; i < to; i++) {
-					subRefs.add(String.valueOf(i));
-				}
-
-				addOccurrences(subRefs);
+			if (group.split(entriesSeparator).length > 1) {
+				addSeparatedRefs(group, entriesSeparator);
+			} else if (group.split(multipleEntries).length > 1) {
+				addMultipleRefs(group, multipleEntries);
 			}
 		}
+	}
+
+	private void addMultipleRefs(String group, String multipleEntries) {
+		List<String> subRefs = new ArrayList<String>(Arrays.asList(group
+				.split(multipleEntries)));
+
+		if (subRefs.size() != 2) {
+			return;
+		}
+
+		try {
+			int from = Integer.valueOf(subRefs.get(0));
+			int to = Integer.valueOf(subRefs.get(1));
+			for (int i = from + 1; i < to; i++) {
+				subRefs.add(String.valueOf(i));
+			}
+
+			addOccurrences(subRefs);
+		} catch (NumberFormatException e) {
+			// Silently ignore if we have a wrong-formatted reference.
+		}
+	}
+
+	private void addSeparatedRefs(String group, String entriesSeparator) {
+		List<String> subRefs = Arrays.asList(group.split(entriesSeparator));
+
+		addOccurrences(subRefs);
 	}
 
 	private void addOccurrences(List<String> subRefs) {

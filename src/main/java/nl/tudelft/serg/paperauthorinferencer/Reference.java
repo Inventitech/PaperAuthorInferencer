@@ -10,7 +10,7 @@ public class Reference {
 
 	public String identifier;
 	public Set<String> authors = new HashSet<String>();
-	public int occurences;
+	public int occurences = 0;
 
 	@Override
 	public String toString() {

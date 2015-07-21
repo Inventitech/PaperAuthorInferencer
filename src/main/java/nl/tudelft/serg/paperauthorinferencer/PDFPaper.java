@@ -10,7 +10,7 @@ public class PDFPaper {
 	public PDFPaper(String filename) {
 		PDDocument pdfFile = null;
 		try {
-			pdfFile = PDDocument.load(filename);
+			pdfFile = PDDocument.load(filename, true);
 			PDFTextStripper textStripper = new PDFTextStripper();
 
 			if (!pdfFile.isEncrypted()) {

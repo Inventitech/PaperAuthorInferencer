@@ -20,24 +20,24 @@ public class ReferenceOccurrenceCounterTest {
 
 	@Test
 	public void testSingleOccuringReferences() {
-		pdf.nonRefContent = "This is a multi-reference [1], [2], [3]. See how often it occurs [1]?";
-		pdf.content = pdf.nonRefContent;
+		pdf.content = "This is a multi-reference [1], [2], [3]. See how often it occurs [1]?";
+		pdf.nonRefContent = pdf.content;
 		int numberOfCountedReferences = countNumberOfOccuringReferences(buildReferences());
 		assertEquals(4, numberOfCountedReferences);
 	}
 
 	@Test
 	public void testMultipleOccuringReferences() {
-		pdf.nonRefContent = "This is a multi-reference [1, 2, 3]. See how often it occurs [1]?";
-		pdf.content = pdf.nonRefContent;
+		pdf.content = "This is a multi-reference [1, 2, 3]. See how often it occurs [1]?";
+		pdf.nonRefContent = pdf.content;
 		int numberOfCountedReferences = countNumberOfOccuringReferences(buildReferences());
 		assertEquals(4, numberOfCountedReferences);
 	}
 	
 	@Test
 	public void testRangeOccuringReferences() {
-		pdf.nonRefContent = "This is a multi-reference [1-3]. See how often it occurs [1]?";
-		pdf.content = pdf.nonRefContent;
+		pdf.content = "This is a multi-reference [1-3]. See how often it occurs [1]?";
+		pdf.nonRefContent = pdf.content;
 		int numberOfCountedReferences = countNumberOfOccuringReferences(buildReferences());
 		assertEquals(4, numberOfCountedReferences);
 	}
