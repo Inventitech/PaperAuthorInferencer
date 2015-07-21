@@ -1,13 +1,26 @@
 package nl.tudelft.serg.paperauthorinferencer;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class ReferenceListBuilder {
 	private PDFPaper pdfPaper;
 	public Set<Reference> references = new HashSet<Reference>();
+
+	private static String period = ".";
+	private static String comma = ", ";
+	private static String and = "and ";
+	private static String commaAnd = comma + and;
+
+	private static List<String> splitters = Arrays.asList(commaAnd, comma, and)
+			.stream().map(a -> Pattern.quote(a)).collect(Collectors.toList());
 
 	public ReferenceListBuilder(PDFPaper pdfPaper) {
 		this.pdfPaper = pdfPaper;
@@ -26,7 +39,7 @@ public class ReferenceListBuilder {
 		String[] individualLines = pdfPaper.content
 				.split(pdfPaper.lineSeparator);
 		StringBuilder nonRefContentBuilder = new StringBuilder();
-		
+
 		String curReference = "";
 
 		ReferenceFindingState state = ReferenceFindingState.NONE;
@@ -59,19 +72,20 @@ public class ReferenceListBuilder {
 				if (line.matches("(?i)^(\\d. )*(references|literature)$")) {
 					state = ReferenceFindingState.NEW_REF_TAG;
 				} else {
-					nonRefContentBuilder.append(line).append(pdfPaper.lineSeparator);
+					nonRefContentBuilder.append(line).append(
+							pdfPaper.lineSeparator);
 				}
 			}
 		}
-		
+
 		pdfPaper.nonRefContent = nonRefContentBuilder.toString();
 	}
 
-	private Pattern compileReferencePattern() {
+	private static Pattern compileReferencePattern() {
 		return Pattern.compile("^(\\[\\d+\\]).*");
 	}
 
-	private Reference createReferenceEntry(String referenceEntry) {
+	public static Reference createReferenceEntry(String referenceEntry) {
 		Matcher matcher = compileReferencePattern().matcher(referenceEntry);
 		matcher.matches();
 		String extractedReference = matcher.group(1);
@@ -79,44 +93,51 @@ public class ReferenceListBuilder {
 		referenceEntry = referenceEntry.replaceFirst(
 				Pattern.quote(extractedReference), "");
 
-		addAuthors(referenceEntry, reference);
+		addAuthors(referenceEntry, 0, reference);
 		return reference;
 	}
 
-	/** Recursively adds authors until there are no more authors left. */
-	private void addAuthors(String referenceEntry, Reference reference) {
-		String period = ".";
-		String comma = ", ";
-		String and = "and ";
-		String commaAnd = comma + and;
+	static void addAuthors(String referenceEntry, Reference reference) {
+		String authors = extractAuthors(referenceEntry);
+		addAuthors(authors, 0, reference);
+	}
 
+	private static String extractAuthors(String referenceEntry) {
 		referenceEntry = referenceEntry.trim();
 
-		boolean lastEntry = false;
-		if (referenceEntry.startsWith(period))
-			return;
-		else if (referenceEntry.startsWith(commaAnd)) {
-			referenceEntry = referenceEntry.replaceFirst(commaAnd, "");
-			lastEntry = true;
-		} else if (referenceEntry.startsWith(and)) {
-			referenceEntry = referenceEntry.replaceFirst(and, "");
-			lastEntry = true;
-		} else if (referenceEntry.startsWith(comma)) {
-			referenceEntry = referenceEntry.replaceFirst(comma, "");
-		}
-
-		String authorRegEx = "^(([A-Z]\\. )[A-Z][a-z]{1,}).*";
-		Pattern pattern = Pattern.compile(authorRegEx);
+		Pattern pattern = Pattern.compile("(.*?[a-z])\\.");
 		Matcher matcher = pattern.matcher(referenceEntry);
-		if (!matcher.find()) {
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
+		return "";
+
+	}
+
+	/** Recursively adds authors until there are no more authors left. */
+	static void addAuthors(String authors, int splitterPos, Reference reference) {
+		authors = authors.trim();
+		String splitter = splitters.get(splitterPos);
+
+		Pattern pattern = Pattern.compile(splitter);
+		Matcher matcher = pattern.matcher(authors);
+
+		if (matcher.find()) {
+			String[] groups = authors.split(splitter);
+			for (String group : groups) {
+				addAuthors(group, splitterPos, reference);
+			}
 			return;
 		}
-		String author = matcher.group(1);
-		reference.authors.add(author);
-
-		referenceEntry = referenceEntry.replaceFirst(author, "");
-		if (!lastEntry) {
-			addAuthors(referenceEntry, reference);
+	
+		if (splitterPos + 1 < splitters.size()) {
+			addAuthors(authors, splitterPos + 1, reference);
+		} else {
+			addSingleAuthor(authors, reference);
 		}
+	}
+
+	private static void addSingleAuthor(String author, Reference reference) {
+		reference.authors.add(StringUtils.removeEnd(author.trim(), period));
 	}
 }
