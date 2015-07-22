@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# make sure we get proper decimals
+LANG=en_us_8859_1
+
 FILES=src/test/resources/*
 NUM_AUTHROS=$(seq 5)
 OUTPUT=author-guess-results.csv
@@ -9,19 +12,16 @@ then
 	rm $OUTPUT
 fi
 
-echo "file, maxAuthors, percentage, result" >> $OUTPUT
+echo "file, percentage, result" >> $OUTPUT
 
 
 for f in $FILES
 do
-	for authors in $(seq 5)
+	for perc in $(seq 0 0.05 1)
 	do
-		for perc in $(seq 0 0.05 1)
-		do
-		  echo "Processing file $f with $authors authors and $perc ratio ..."
-		  RESULT=$(java -jar target/paper-author-inferencer-0.0.1-SNAPSHOT-jar-with-dependencies.jar $f -n $authors -t $perc)
-		  echo "$f, $authors, $perc, $RESULT" >> $OUTPUT
-		done
+	  echo "Processing file $f with $authors authors and $perc ratio ..."
+	  RESULT=$(java -jar target/paper-author-inferencer-0.0.1-SNAPSHOT-jar-with-dependencies.jar -t $perc $f)
+	  echo "$f, $perc, $RESULT" >> $OUTPUT
 	done
 done
 

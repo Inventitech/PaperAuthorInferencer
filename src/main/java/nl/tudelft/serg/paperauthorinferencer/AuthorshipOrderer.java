@@ -63,12 +63,10 @@ public class AuthorshipOrderer {
 			highestScore = authorEntries.stream().map(t -> t.score)
 					.max(Integer::compare).get();
 
-			authorEntries.stream().filter(a -> {
-				return a.score >= authorThreshold * highestScore;
-			}).sorted(Collections.reverseOrder()).limit(maxAuthors)
-					.forEach(t -> {
-						System.out.print(t + "; ");
-					});
+			authorEntries.stream()
+					.filter(a -> a.score >= authorThreshold * highestScore)
+					.sorted(Collections.reverseOrder()).limit(maxAuthors)
+					.forEach(t -> System.out.print(t + "; "));
 		} catch (NoSuchElementException e) {
 			System.out.print("PDF not analyzable.");
 		}
