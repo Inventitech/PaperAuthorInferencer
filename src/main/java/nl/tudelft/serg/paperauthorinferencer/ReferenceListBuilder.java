@@ -141,12 +141,9 @@ public class ReferenceListBuilder {
 			}
 		}
 
-		if (foundPossibleYears.isEmpty()) {
-			System.out.println("No year: " + referenceEntry);
-			return;
+		if (!foundPossibleYears.isEmpty()) {
+			reference.year = foundPossibleYears
+					.get(foundPossibleYears.size() - 1);
 		}
-
-		reference.year = foundPossibleYears.get(foundPossibleYears.size() - 1);
-		System.out.println("Year " + reference.year + " : " + referenceEntry);
 	}
 }
