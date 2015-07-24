@@ -1,6 +1,9 @@
 package nl.tudelft.serg.paperauthorinferencer;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +29,7 @@ public class ReferenceListBuilder {
 		String[] individualLines = pdfPaper.content
 				.split(pdfPaper.lineSeparator);
 		StringBuilder nonRefContentBuilder = new StringBuilder();
-		
+
 		String curReference = "";
 
 		ReferenceFindingState state = ReferenceFindingState.NONE;
@@ -59,11 +62,12 @@ public class ReferenceListBuilder {
 				if (line.matches("(?i)^(\\d. )*(references|literature)$")) {
 					state = ReferenceFindingState.NEW_REF_TAG;
 				} else {
-					nonRefContentBuilder.append(line).append(pdfPaper.lineSeparator);
+					nonRefContentBuilder.append(line).append(
+							pdfPaper.lineSeparator);
 				}
 			}
 		}
-		
+
 		pdfPaper.nonRefContent = nonRefContentBuilder.toString();
 	}
 
@@ -80,6 +84,7 @@ public class ReferenceListBuilder {
 				Pattern.quote(extractedReference), "");
 
 		addAuthors(referenceEntry, reference);
+		addYear(referenceEntry, reference);
 		return reference;
 	}
 
@@ -92,7 +97,7 @@ public class ReferenceListBuilder {
 
 		referenceEntry = referenceEntry.trim();
 		// evil fix against double -
-		referenceEntry = referenceEntry.replace("--","  ");
+		referenceEntry = referenceEntry.replace("--", "  ");
 
 		boolean lastEntry = false;
 		if (referenceEntry.startsWith(period))
@@ -107,7 +112,6 @@ public class ReferenceListBuilder {
 			referenceEntry = referenceEntry.replaceFirst(comma, "");
 		}
 
-		
 		String authorRegEx = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,2}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
 		Pattern pattern = Pattern.compile(authorRegEx);
 		Matcher matcher = pattern.matcher(referenceEntry);
@@ -121,5 +125,28 @@ public class ReferenceListBuilder {
 		if (!lastEntry) {
 			addAuthors(referenceEntry, reference);
 		}
+	}
+
+	private void addYear(String referenceEntry, Reference reference) {
+		int nextYear = Calendar.getInstance().get(Calendar.YEAR) + 1;
+		List<Integer> foundPossibleYears = new ArrayList<Integer>();
+
+		String authorRegEx = "\\D(\\d{4,4})\\D";
+		Pattern pattern = Pattern.compile(authorRegEx);
+		Matcher matcher = pattern.matcher(referenceEntry);
+		while (matcher.find()) {
+			int year = Integer.valueOf(matcher.group(1));
+			if (year > 1800 && year <= nextYear) {
+				foundPossibleYears.add(year);
+			}
+		}
+
+		if (foundPossibleYears.isEmpty()) {
+			System.out.println("No year: " + referenceEntry);
+			return;
+		}
+
+		reference.year = foundPossibleYears.get(foundPossibleYears.size() - 1);
+		System.out.println("Year " + reference.year + " : " + referenceEntry);
 	}
 }

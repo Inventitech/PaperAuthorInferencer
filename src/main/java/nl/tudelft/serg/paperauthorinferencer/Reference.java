@@ -11,10 +11,11 @@ public class Reference {
 	public String identifier;
 	public Set<String> authors = new HashSet<String>();
 	public int occurences = 0;
+	public int year;
 
 	@Override
 	public String toString() {
 		return identifier + ": "
-				+ authors.stream().reduce("", (a, b) -> a + b + ", ") + "\n";
+				+ authors.stream().reduce("", (a, b) -> a + b + ", ") + " " + year + "\n";
 	}
 }
