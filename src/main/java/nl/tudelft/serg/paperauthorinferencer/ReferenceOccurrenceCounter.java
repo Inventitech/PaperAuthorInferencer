@@ -42,8 +42,7 @@ public class ReferenceOccurrenceCounter {
 	}
 
 	private void addMultipleRefs(String group, String multipleEntries) {
-		List<String> subRefs = new ArrayList<String>(Arrays.asList(group
-				.split(multipleEntries)));
+		List<String> subRefs = new ArrayList<String>(Arrays.asList(group.split(multipleEntries)));
 
 		if (subRefs.size() != 2) {
 			return;
@@ -86,8 +85,7 @@ public class ReferenceOccurrenceCounter {
 
 	private void countSimpleReferences() {
 		references.forEach(r -> {
-			r.occurences = StringUtils
-					.countMatches(paper.content, r.identifier);
+			r.occurences = StringUtils.countMatches(paper.content, r.identifier);
 		});
 	}
 }

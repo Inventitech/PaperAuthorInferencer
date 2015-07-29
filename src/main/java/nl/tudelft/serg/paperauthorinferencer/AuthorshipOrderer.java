@@ -12,17 +12,18 @@ import java.util.function.Consumer;
 public class AuthorshipOrderer {
 	Map<String, Integer> authorsToFrequency = new HashMap<String, Integer>();
 	Map<String, Author> authors = new HashMap<>();
-	private int maxAuthors;
-	private int highestScore;
-	private float authorThreshold;
-
-	public AuthorshipOrderer(int maxAuthors, float authorThreshold) {
-		this.maxAuthors = maxAuthors;
-		this.authorThreshold = authorThreshold;
+	PDFPaper paper;
+	
+	public AuthorshipOrderer(PDFPaper paper) {
+		this.paper = paper;
 	}
 
 	public class Author implements Comparable<Author> {
 		String name;
+		double referenceEntries = 0;
+		double occurenceRatio = 0;
+		int eldestRefDelta;
+		int newestRef;
 		int score;
 
 		@Override
@@ -36,37 +37,45 @@ public class AuthorshipOrderer {
 		}
 	}
 
-	public void orderReferences(Set<Reference> references) {
+	public void buildAuthorList(Set<Reference> references) {
 		references.forEach(new Consumer<Reference>() {
 
 			@Override
 			public void accept(Reference r) {
 				r.authors.forEach(t -> {
+					Author author;
 					if (authors.containsKey(t)) {
-						Author author = authors.get(t);
-						author.score += r.occurences;
-						authors.put(t, author);
+						author = authors.get(t);
 					} else {
-						Author author = new Author();
-						author.name = t;
-						author.score = r.occurences;
-						authors.put(t, author);
+						author = new Author();
 					}
+					updateAuthorEntry(r, t, author);
+					authors.put(t, author);
 				});
+			}
+
+			private void updateAuthorEntry(Reference r, String t, Author author) {
+				author.name = t;
+				author.occurenceRatio += r.occurenceRatio;
+				author.referenceEntries += 1;
+				int yearDiff = paper.year - r.year;
+				if (yearDiff < author.eldestRefDelta) {
+					author.eldestRefDelta = yearDiff;
+				}
+				if (yearDiff > author.newestRef) {
+					author.newestRef = yearDiff;
+				}
 			}
 		});
 	}
-
-	public void printTopAuthors() {
+	
+	public void printAuthors() {
 		try {
 			List<Author> authorEntries = new ArrayList<>(authors.values());
-			highestScore = authorEntries.stream().map(t -> t.score)
-					.max(Integer::compare).get();
 
-			authorEntries.stream()
-					.filter(a -> a.score >= authorThreshold * highestScore)
-					.sorted(Collections.reverseOrder()).limit(maxAuthors)
-					.forEach(t -> System.out.print(t + "; "));
+			authorEntries.stream().sorted(Collections.reverseOrder()).forEach(t -> {
+				System.out.println(t.name + ", ");
+			});
 		} catch (NoSuchElementException e) {
 			System.out.print("PDF not analyzable.");
 		}

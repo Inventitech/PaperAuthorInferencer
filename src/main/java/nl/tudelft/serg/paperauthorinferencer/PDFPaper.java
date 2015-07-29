@@ -8,26 +8,40 @@ import org.apache.pdfbox.util.PDFTextStripper;
 public class PDFPaper {
 
 	public PDFPaper(String filename) {
-		PDDocument pdfFile = null;
+		PDDocument pdDocument = null;
+		extractYear(filename);
 		try {
-			pdfFile = PDDocument.load(filename, true);
+			pdDocument = PDDocument.load(filename, true);
+			// TODO (MMB) continue here.
+			pdDocument.getDocumentInformation().getAuthor();
 			PDFTextStripper textStripper = new PDFTextStripper();
 
-			if (!pdfFile.isEncrypted()) {
-				pages = pdfFile.getNumberOfPages();
-				content = textStripper.getText(pdfFile);
+			if (!pdDocument.isEncrypted()) {
+				pages = pdDocument.getNumberOfPages();
+				content = textStripper.getText(pdDocument);
 				lineSeparator = textStripper.getLineSeparator();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				pdfFile.close();
+				pdDocument.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
+	}
+
+	private void extractYear(String file) {
+		int year;
+		try {
+			year = Integer.valueOf(file.substring(0, 4));
+			if (Utils.isReasonablyPossilbeYear(year)) {
+				this.year = year;
+			}
+		} catch (NumberFormatException e) {
+		}
 	}
 
 	public int pages;
@@ -37,5 +51,7 @@ public class PDFPaper {
 	public String nonRefContent;
 
 	public String lineSeparator;
+
+	public int year;
 
 }

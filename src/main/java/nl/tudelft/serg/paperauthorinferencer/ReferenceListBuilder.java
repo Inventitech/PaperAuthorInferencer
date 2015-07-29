@@ -1,7 +1,6 @@
 package nl.tudelft.serg.paperauthorinferencer;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -128,7 +127,6 @@ public class ReferenceListBuilder {
 	}
 
 	private void addYear(String referenceEntry, Reference reference) {
-		int nextYear = Calendar.getInstance().get(Calendar.YEAR) + 1;
 		List<Integer> foundPossibleYears = new ArrayList<Integer>();
 
 		String authorRegEx = "\\D(\\d{4,4})\\D";
@@ -136,7 +134,7 @@ public class ReferenceListBuilder {
 		Matcher matcher = pattern.matcher(referenceEntry);
 		while (matcher.find()) {
 			int year = Integer.valueOf(matcher.group(1));
-			if (year > 1800 && year <= nextYear) {
+			if (Utils.isReasonablyPossilbeYear(year)) {
 				foundPossibleYears.add(year);
 			}
 		}

@@ -11,7 +11,10 @@ public class Reference {
 	public String identifier;
 	public Set<String> authors = new HashSet<String>();
 	public int occurences = 0;
-	public int year;
+	public int year = Utils.currentYear;
+	public double occurenceRatio;
+	double referenceEntriesRatio;
+	double referredRatio;
 
 	@Override
 	public String toString() {
