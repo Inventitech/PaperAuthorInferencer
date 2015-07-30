@@ -31,7 +31,7 @@ public class Main {
 				referenceLocator.references);
 		occurenceCounter.countReferences();
 
-		ReferenceScoreBuilder referenceScoreBuilder = new ReferenceScoreBuilder(paper, occurenceCounter.references);
+		ReferenceScoreBuilder referenceScoreBuilder = new ReferenceScoreBuilder(occurenceCounter.references);
 		referenceScoreBuilder.normalize();
 
 		AuthorshipOrderer orderer = new AuthorshipOrderer(paper);

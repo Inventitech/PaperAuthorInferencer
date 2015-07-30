@@ -3,7 +3,6 @@ package nl.tudelft.serg.paperauthorinferencer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -11,7 +10,7 @@ import java.util.function.Consumer;
 
 public class AuthorshipOrderer {
 	Map<String, Integer> authorsToFrequency = new HashMap<String, Integer>();
-	Map<String, Author> authors = new HashMap<>();
+	ArrayList<Author> authors = new ArrayList<Author>();
 	PDFPaper paper;
 
 	public AuthorshipOrderer(PDFPaper paper) {
@@ -24,14 +23,15 @@ public class AuthorshipOrderer {
 			@Override
 			public void accept(Reference r) {
 				r.authors.forEach(t -> {
+					Author temporaryAuthor = new Author(t);
 					Author author;
-					if (authors.containsKey(t)) {
-						author = authors.get(t);
+					if (authors.contains(temporaryAuthor)) {
+						author = authors.get(authors.indexOf(temporaryAuthor));
 					} else {
 						author = new Author(t);
+						authors.add(author);
 					}
 					updateAuthorEntry(r, t, author);
-					authors.put(t, author);
 				});
 			}
 
@@ -39,11 +39,13 @@ public class AuthorshipOrderer {
 				author.occurenceRatio += r.occurenceRatio;
 				author.referenceEntriesRatio += r.referenceEntriesRatio;
 				int yearDiff = paper.year - r.year;
-				if (yearDiff < author.eldestRefDelta) {
-					author.eldestRefDelta = yearDiff;
-				}
-				if (yearDiff > author.newestRefDelta) {
-					author.newestRefDelta = yearDiff;
+				if (yearDiff >= 0) {
+					if (yearDiff < author.newestRefDelta) {
+						author.newestRefDelta = yearDiff;
+					}
+					if (yearDiff > author.eldestRefDelta) {
+						author.eldestRefDelta = yearDiff;
+					}
 				}
 			}
 		});
@@ -51,13 +53,12 @@ public class AuthorshipOrderer {
 
 	public void printAuthors() {
 		try {
-			List<Author> authorEntries = new ArrayList<>(authors.values());
-			// String realAuthors = paper.authors.stream().reduce("", (a, b) ->
-			// b += ";" + a);
+			paper.authors.stream().forEach(a -> System.out.print(a + ", "));
+			System.out.println();
 
-			authorEntries.stream().sorted(Collections.reverseOrder()).forEach(a -> {
-				System.out.println(a.fullName + ", " + a.occurenceRatio + ", " + a.referenceEntriesRatio + ", "
-						+ a.eldestRefDelta + ", " + a.newestRefDelta + ", " + isRealAuthor(a));
+			authors.stream().sorted(Collections.reverseOrder()).forEach(a -> {
+				System.out.println(a.getCanonicalName() + ", " + a.occurenceRatio + ", " + a.referenceEntriesRatio
+						+ ", " + a.eldestRefDelta + ", " + a.newestRefDelta + ", " + isRealAuthor(a));
 			});
 		} catch (NoSuchElementException e) {
 			System.out.print("PDF not analyzable.");
@@ -65,8 +66,6 @@ public class AuthorshipOrderer {
 	}
 
 	private boolean isRealAuthor(Author author) {
-		boolean isCorrectAuthor = false;
-		isCorrectAuthor = paper.authors.contains(author.fullName);
-		return isCorrectAuthor;
+		return paper.authors.stream().filter(a -> a.equals(author)).count() > 0;
 	}
 }

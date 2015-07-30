@@ -12,8 +12,8 @@ public class Reference {
 	public Set<String> authors = new HashSet<String>();
 	public int occurences = 0;
 	public int year = Utils.currentYear;
-	public double occurenceRatio;
-	double referenceEntriesRatio;
+	public double occurenceRatio = 0;
+	double referenceEntriesRatio = 0;
 
 	@Override
 	public String toString() {

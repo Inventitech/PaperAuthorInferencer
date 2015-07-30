@@ -13,6 +13,11 @@ public class ReferenceListBuilder {
 	private PDFPaper pdfPaper;
 	public Set<Reference> references = new HashSet<Reference>();
 
+	private final static String period = ".";
+	private final static String comma = ", ";
+	private final static String and = "and ";
+	private final static String commaAnd = comma + and;
+
 	public ReferenceListBuilder(PDFPaper pdfPaper) {
 		this.pdfPaper = pdfPaper;
 	}
@@ -101,11 +106,6 @@ public class ReferenceListBuilder {
 		if (StringUtils.isEmpty(referenceEntry) || StringUtils.isBlank(referenceEntry)) {
 			return;
 		}
-		
-		String period = ".";
-		String comma = ", ";
-		String and = "and ";
-		String commaAnd = comma + and;
 
 		referenceEntry = referenceEntry.trim();
 		// evil fix against double -
@@ -124,12 +124,12 @@ public class ReferenceListBuilder {
 			referenceEntry = referenceEntry.replaceFirst(comma, "");
 		}
 
-		String lenientRegEx = "^((([^\\.:,]*? ){0,2}[^\\.:,]{3,}?)(" + comma + "|" + commaAnd + "| " + and
+		String lenientRegEx = "^((([^\\.:,]*? ){0,3}[^\\.:,]{2,}?)(" + comma + "|" + commaAnd + "| " + and
 				+ Pattern.quote(period) + "))+";
 		Pattern lenientPattern = Pattern.compile(lenientRegEx);
 		Matcher lenientMatcher = lenientPattern.matcher(referenceEntry);
 
-		String authorRegEx = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,2}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
+		String authorRegEx = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,3}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
 		Pattern authorPattern = Pattern.compile(authorRegEx);
 		Matcher authorMatcher = authorPattern.matcher(referenceEntry);
 		String author;
