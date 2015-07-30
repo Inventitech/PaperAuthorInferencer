@@ -14,7 +14,6 @@ public class Reference {
 	public int year = Utils.currentYear;
 	public double occurenceRatio;
 	double referenceEntriesRatio;
-	double referredRatio;
 
 	@Override
 	public String toString() {

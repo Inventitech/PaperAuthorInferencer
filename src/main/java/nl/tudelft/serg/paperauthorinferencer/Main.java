@@ -1,7 +1,5 @@
 package nl.tudelft.serg.paperauthorinferencer;
 
-import java.io.File;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
@@ -24,8 +22,6 @@ public class Main {
 		if (printPDFPath) {
 			System.out.println(pdfDocument);
 		}
-
-		File file = new File(pdfDocument);
 
 		PDFPaper paper = new PDFPaper(pdfDocument);
 

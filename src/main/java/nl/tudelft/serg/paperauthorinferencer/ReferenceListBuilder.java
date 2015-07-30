@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ReferenceListBuilder {
 	private PDFPaper pdfPaper;
 	public Set<Reference> references = new HashSet<Reference>();
@@ -25,8 +27,7 @@ public class ReferenceListBuilder {
 	 * for entries embedded in [] braces.
 	 */
 	public void locateReferences() {
-		String[] individualLines = pdfPaper.content
-				.split(pdfPaper.lineSeparator);
+		String[] individualLines = pdfPaper.content.split(pdfPaper.lineSeparator);
 		StringBuilder nonRefContentBuilder = new StringBuilder();
 
 		String curReference = "";
@@ -61,8 +62,7 @@ public class ReferenceListBuilder {
 				if (line.matches("(?i)^(\\d. )*(references|literature)$")) {
 					state = ReferenceFindingState.NEW_REF_TAG;
 				} else {
-					nonRefContentBuilder.append(line).append(
-							pdfPaper.lineSeparator);
+					nonRefContentBuilder.append(line).append(pdfPaper.lineSeparator);
 				}
 			}
 		}
@@ -79,16 +79,29 @@ public class ReferenceListBuilder {
 		matcher.matches();
 		String extractedReference = matcher.group(1);
 		Reference reference = new Reference(extractedReference);
-		referenceEntry = referenceEntry.replaceFirst(
-				Pattern.quote(extractedReference), "");
+		referenceEntry = referenceEntry.replaceFirst(Pattern.quote(extractedReference), "");
 
 		addAuthors(referenceEntry, reference);
 		addYear(referenceEntry, reference);
 		return reference;
 	}
 
-	/** Recursively adds authors until there are no more authors left. */
 	static void addAuthors(String referenceEntry, Reference reference) {
+		extractAuthors(referenceEntry).forEach(a -> reference.authors.add(a));
+	}
+
+	private static Set<String> extractAuthors(String referenceEntry) {
+		Set<String> authors = new HashSet<>();
+		extractAuthors(referenceEntry, authors);
+		return authors;
+	}
+
+	/** Recursively adds authors until there are no more authors left. */
+	static void extractAuthors(String referenceEntry, Set<String> authors) {
+		if (StringUtils.isEmpty(referenceEntry) || StringUtils.isBlank(referenceEntry)) {
+			return;
+		}
+		
 		String period = ".";
 		String comma = ", ";
 		String and = "and ";
@@ -111,18 +124,27 @@ public class ReferenceListBuilder {
 			referenceEntry = referenceEntry.replaceFirst(comma, "");
 		}
 
+		String lenientRegEx = "^((([^\\.:,]*? ){0,2}[^\\.:,]{3,}?)(" + comma + "|" + commaAnd + "| " + and
+				+ Pattern.quote(period) + "))+";
+		Pattern lenientPattern = Pattern.compile(lenientRegEx);
+		Matcher lenientMatcher = lenientPattern.matcher(referenceEntry);
+
 		String authorRegEx = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,2}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
-		Pattern pattern = Pattern.compile(authorRegEx);
-		Matcher matcher = pattern.matcher(referenceEntry);
-		if (!matcher.find()) {
+		Pattern authorPattern = Pattern.compile(authorRegEx);
+		Matcher authorMatcher = authorPattern.matcher(referenceEntry);
+		String author;
+		if (authorMatcher.find()) {
+			author = authorMatcher.group(1);
+		} else if (!authorMatcher.find() && lenientMatcher.find()) {
+			author = lenientMatcher.group(2);
+		} else {
 			return;
 		}
-		String author = matcher.group(1);
-		reference.authors.add(author);
+		authors.add(author);
 
 		referenceEntry = referenceEntry.replaceFirst(author, "");
 		if (!lastEntry) {
-			addAuthors(referenceEntry, reference);
+			extractAuthors(referenceEntry, authors);
 		}
 	}
 
@@ -140,8 +162,7 @@ public class ReferenceListBuilder {
 		}
 
 		if (!foundPossibleYears.isEmpty()) {
-			reference.year = foundPossibleYears
-					.get(foundPossibleYears.size() - 1);
+			reference.year = foundPossibleYears.get(foundPossibleYears.size() - 1);
 		}
 	}
 }
