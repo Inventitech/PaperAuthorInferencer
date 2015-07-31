@@ -16,13 +16,11 @@ public class Reference {
 	public double referenceEntriesRatio = 0;
 	public double firstOccurrenceRatio = 1;
 
-
 	public void updateFirstOccurrenceRatio(double firstOccurrenceRatio) {
 		this.firstOccurrenceRatio = (this.firstOccurrenceRatio < firstOccurrenceRatio ? this.firstOccurrenceRatio
 				: firstOccurrenceRatio);
 	}
 
-	
 	@Override
 	public String toString() {
 		return identifier + ": " + authors.stream().reduce("", (a, b) -> a + b + ", ") + " " + year + "\n";

@@ -28,8 +28,7 @@ public class ReferenceOccurrenceCounter {
 	private void countSimpleReferences() {
 		references.forEach(r -> {
 			r.occurences = StringUtils.countMatches(paper.content, r.identifier);
-			double firstAppearanceRatio = (double) paper.nonRefContent.indexOf(r.identifier)
-					/ paper.nonRefContent.length();
+			double firstAppearanceRatio = (double) paper.content.indexOf(r.identifier) / paper.content.length();
 			r.updateFirstOccurrenceRatio(firstAppearanceRatio);
 		});
 	}
