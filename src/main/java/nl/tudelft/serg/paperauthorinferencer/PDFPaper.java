@@ -33,7 +33,8 @@ public class PDFPaper {
 		try {
 			pdfDocument = PDDocument.load(filename, true);
 			Set<String> authorNames = new HashSet<String>();
-			ReferenceListBuilder.extractAuthors(makeASCIILike(pdfDocument.getDocumentInformation().getAuthor()+"."), authorNames);
+			ReferenceListBuilder.extractAuthors(makeASCIILike(pdfDocument.getDocumentInformation().getAuthor() + "."),
+					authorNames);
 			authorNames.forEach(a -> authors.add(new Author(a)));
 			PDFTextStripper textStripper = new PDFTextStripper("UTF-8");
 			if (!pdfDocument.isEncrypted()) {
@@ -66,12 +67,10 @@ public class PDFPaper {
 			this.year = Utils.currentYear;
 		}
 	}
-	
 
 	public static String makeASCIILike(String string) {
-		return string.replaceAll("[^A-Za-z,. ]", "");
+		return string.replaceAll("[^\\p{L}ǎ´'`’,. -]", "");
 	}
-
 
 	private void fixGermanUmlauts() {
 		Map<String, String> replaceGlyphons = new HashMap<String, String>();
