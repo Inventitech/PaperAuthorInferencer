@@ -14,7 +14,7 @@ public class ReferenceScoreBuilder {
 		int total = references.stream().mapToInt(r -> r.occurences).sum();
 
 		references.stream().forEach(r -> {
-			r.occurenceRatio = (double) r.occurences / total;
+			r.occurrenceRatio = (double) r.occurences / total;
 			r.referenceEntriesRatio = (double) 1 / references.size();
 		});
 	}

@@ -3,8 +3,7 @@
 # make sure we get proper decimals
 LANG=en_us_8859_1
 
-FILES=src/test/resources/2013_*
-NUM_AUTHROS=$(seq 5)
+FILES=../icse-proceedings/icse2010/*
 OUTPUT=author-guess-results.csv
 
 if [ -f $OUTPUT ] 

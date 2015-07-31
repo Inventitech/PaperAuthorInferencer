@@ -37,7 +37,7 @@ public class PDFPaperTest {
 	@Test
 	public void testIfMetadataIsCorrectWhalenPaper() {
 		PDFPaper pdfReader = new PDFPaper("src/test/resources/2013_ICSE_ICSE13_p102-whalen.pdf");
-		System.out.println(pdfReader.authors);
+		assertEquals(5, pdfReader.authors.size());
 	}
 
 }

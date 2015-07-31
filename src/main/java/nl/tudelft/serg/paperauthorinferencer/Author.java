@@ -21,6 +21,7 @@ public class Author implements Comparable<Author> {
 	double occurenceRatio = 0;
 	int eldestRefDelta = 0;
 	int newestRefDelta = Integer.MAX_VALUE;
+	double firstOccurrenceRatio = 1;
 
 	public Author(String fullName) {
 		this.fullName = fullName;

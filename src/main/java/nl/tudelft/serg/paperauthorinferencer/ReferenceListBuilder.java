@@ -101,8 +101,16 @@ public class ReferenceListBuilder {
 		return authors;
 	}
 
-	/** Recursively adds authors until there are no more authors left. */
 	static void extractAuthors(String referenceEntry, Set<String> authors) {
+		extractAuthors(referenceEntry, authors, 0);
+	}
+
+	/** Recursively adds authors until there are no more authors left. */
+	static void extractAuthors(String referenceEntry, Set<String> authors, int recursionDepth) {
+		if (recursionDepth > 10) {
+			// we only support a maximum of 10 authors per reference entry.
+			return;
+		}
 		if (StringUtils.isEmpty(referenceEntry) || StringUtils.isBlank(referenceEntry)) {
 			return;
 		}
@@ -144,7 +152,7 @@ public class ReferenceListBuilder {
 
 		referenceEntry = referenceEntry.replaceFirst(author, "");
 		if (!lastEntry) {
-			extractAuthors(referenceEntry, authors);
+			extractAuthors(referenceEntry, authors, recursionDepth++);
 		}
 	}
 

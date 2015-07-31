@@ -36,7 +36,7 @@ public class AuthorshipOrderer {
 			}
 
 			private void updateAuthorEntry(Reference r, String t, Author author) {
-				author.occurenceRatio += r.occurenceRatio;
+				author.occurenceRatio += r.occurrenceRatio;
 				author.referenceEntriesRatio += r.referenceEntriesRatio;
 				int yearDiff = paper.year - r.year;
 				if (yearDiff >= 0) {
@@ -47,6 +47,8 @@ public class AuthorshipOrderer {
 						author.eldestRefDelta = yearDiff;
 					}
 				}
+				author.firstOccurrenceRatio = (author.firstOccurrenceRatio < r.firstOccurrenceRatio
+						? author.firstOccurrenceRatio : r.firstOccurrenceRatio);
 			}
 		});
 	}
@@ -58,7 +60,8 @@ public class AuthorshipOrderer {
 
 			authors.stream().sorted(Collections.reverseOrder()).forEach(a -> {
 				System.out.println(a.getCanonicalName() + ", " + a.occurenceRatio + ", " + a.referenceEntriesRatio
-						+ ", " + a.eldestRefDelta + ", " + a.newestRefDelta + ", " + isRealAuthor(a));
+						+ ", " + a.eldestRefDelta + ", " + a.newestRefDelta + ", " + a.firstOccurrenceRatio + ", "
+						+ isRealAuthor(a));
 			});
 		} catch (NoSuchElementException e) {
 			System.out.print("PDF not analyzable.");

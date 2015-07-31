@@ -12,12 +12,19 @@ public class Reference {
 	public Set<String> authors = new HashSet<String>();
 	public int occurences = 0;
 	public int year = Utils.currentYear;
-	public double occurenceRatio = 0;
-	double referenceEntriesRatio = 0;
+	public double occurrenceRatio = 0;
+	public double referenceEntriesRatio = 0;
+	public double firstOccurrenceRatio = 1;
 
+
+	public void updateFirstOccurrenceRatio(double firstOccurrenceRatio) {
+		this.firstOccurrenceRatio = (this.firstOccurrenceRatio < firstOccurrenceRatio ? this.firstOccurrenceRatio
+				: firstOccurrenceRatio);
+	}
+
+	
 	@Override
 	public String toString() {
-		return identifier + ": "
-				+ authors.stream().reduce("", (a, b) -> a + b + ", ") + " " + year + "\n";
+		return identifier + ": " + authors.stream().reduce("", (a, b) -> a + b + ", ") + " " + year + "\n";
 	}
 }
