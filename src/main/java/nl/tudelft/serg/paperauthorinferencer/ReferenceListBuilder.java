@@ -24,7 +24,7 @@ public class ReferenceListBuilder {
 			+ "| " + and + Pattern.quote(period) + "))+";
 	private final static Pattern AUTHOR_LENIENT_PATTERN = Pattern.compile(AUTHOR_LENIENT_REG_EX);
 
-	private final static String AUTHOR_REG_EX = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,3}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
+	private final static String AUTHOR_REG_EX = "^(((\\p{Lu}\\. )|(\\p{L}+[\\p{L}ǎ´'`’-]*?\\p{Ll} )){1,3}\\p{Lu}[\\p{L}ǎ´'`’-]*\\p{Ll}).*";
 	private final static Pattern AUTHOR_PATTERN = Pattern.compile(AUTHOR_REG_EX);
 
 	public ReferenceListBuilder(PDFPaper pdfPaper) {
@@ -71,7 +71,7 @@ public class ReferenceListBuilder {
 					break;
 				}
 
-				curReference += line;
+				curReference += " " + line;
 				break;
 			case NONE:
 			default:
@@ -116,8 +116,8 @@ public class ReferenceListBuilder {
 
 	/** Recursively adds authors until there are no more authors left. */
 	static void extractAuthors(String referenceEntry, Set<String> authors, int recursionDepth) {
-		if (recursionDepth > 10) {
-			// we only support a maximum of 10 authors per reference entry.
+		if (recursionDepth > 15) {
+			// we only support a maximum of 15 authors per reference entry.
 			return;
 		}
 		if (StringUtils.isEmpty(referenceEntry) || StringUtils.isBlank(referenceEntry)) {
@@ -143,10 +143,12 @@ public class ReferenceListBuilder {
 
 		Matcher lenientMatcher = AUTHOR_LENIENT_PATTERN.matcher(referenceEntry);
 		Matcher authorMatcher = AUTHOR_PATTERN.matcher(referenceEntry);
+		boolean authorMatcherFound = authorMatcher.find();
+		boolean lenientMatcherFound = lenientMatcher.find();
 		String author;
-		if (authorMatcher.find()) {
+		if (authorMatcherFound) {
 			author = authorMatcher.group(1);
-		} else if (!authorMatcher.find() && lenientMatcher.find()) {
+		} else if (!authorMatcherFound && lenientMatcherFound) {
 			author = lenientMatcher.group(2);
 		} else {
 			return;

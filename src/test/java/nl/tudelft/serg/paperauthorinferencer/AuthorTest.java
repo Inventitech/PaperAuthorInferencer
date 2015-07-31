@@ -65,4 +65,12 @@ public class AuthorTest {
 		assertEquals(false, authorLong.equals(author));
 	}
 
+	@Test
+	public void testMakeASCII() {
+		Author authorRef = new Author("C. Kästner");
+		Author authorTitle = new Author("C. K&#228;stner");
+		assertEquals(true, authorRef.equals(authorTitle));
+		assertEquals(true, authorRef.equals(authorTitle));
+	}
+
 }

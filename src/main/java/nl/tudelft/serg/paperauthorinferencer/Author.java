@@ -1,5 +1,6 @@
 package nl.tudelft.serg.paperauthorinferencer;
 
+import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,13 +87,16 @@ public class Author implements Comparable<Author> {
 		boolean firstNameMatch = false;
 		boolean middleNameMatch = false;
 		boolean lastNameMatch = false;
+		boolean firstNameAbbrevMatch = false;
 
-		boolean isTheSameAuthor = getCanonicalName().equals(otherAuthor.getCanonicalName());
+//		boolean isTheSameAuthor = getCanonicalName().equals(otherAuthor.getCanonicalName());
+		boolean isTheSameAuthor = true;
+		if (firstNameAbreviation != null && otherAuthor.firstNameAbreviation != null) {
+			firstNameAbbrevMatch = firstNameAbreviation.equals(otherAuthor.firstNameAbreviation);
+			isTheSameAuthor &= firstNameAbbrevMatch;
+		}
 		if (firstName != null && otherAuthor.firstName != null) {
 			firstNameMatch = firstName.equals(otherAuthor.firstName);
-			isTheSameAuthor &= firstNameMatch;
-		} else if (firstNameAbreviation != null && otherAuthor.firstNameAbreviation != null) {
-			firstNameMatch = firstNameAbreviation.equals(otherAuthor.firstNameAbreviation);
 			isTheSameAuthor &= firstNameMatch;
 		}
 
@@ -113,7 +117,29 @@ public class Author implements Comparable<Author> {
 			return true;
 		}
 
+		if (!isTheSameAuthor && firstNameAbbrevMatch) {
+			isTheSameAuthor = editDistanceEquals(otherAuthor);
+		}
+
 		return isTheSameAuthor;
+	}
+
+	private boolean editDistanceEquals(Author otherAuthor) {
+		String author1 = makeASCII(getCanonicalName());
+		String author2 = makeASCII(otherAuthor.getCanonicalName());
+		if (StringUtils.getLevenshteinDistance(author1, author2) <= 2) {
+			// System.out.println("WARNING: Authors " + getCanonicalName() + "
+			// and " + otherAuthor.getCanonicalName()
+			// + " equal due to LVD.");
+			return true;
+		}
+
+		return false;
+	}
+
+	public static String makeASCII(String string) {
+		string = Normalizer.normalize(string, Normalizer.Form.NFD);
+		return string.replaceAll("[^A-Za-z]", "");
 	}
 
 	@Override

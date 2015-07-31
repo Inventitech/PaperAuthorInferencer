@@ -2,7 +2,9 @@ package nl.tudelft.serg.paperauthorinferencer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -28,13 +30,13 @@ public class PDFPaper {
 		try {
 			pdfDocument = PDDocument.load(filename, true);
 			Set<String> authorNames = new HashSet<String>();
-			ReferenceListBuilder.extractAuthors(pdfDocument.getDocumentInformation().getAuthor(), authorNames);
+			ReferenceListBuilder.extractAuthors(pdfDocument.getDocumentInformation().getAuthor()+".", authorNames);
 			authorNames.forEach(a -> authors.add(new Author(a)));
-			PDFTextStripper textStripper = new PDFTextStripper();
-
+			PDFTextStripper textStripper = new PDFTextStripper("UTF-8");
 			if (!pdfDocument.isEncrypted()) {
 				pages = pdfDocument.getNumberOfPages();
 				content = textStripper.getText(pdfDocument);
+				fixGermanUmlauts();
 				lineSeparator = textStripper.getLineSeparator();
 			}
 		} catch (IOException e) {
@@ -46,7 +48,6 @@ public class PDFPaper {
 				e.printStackTrace();
 			}
 		}
-
 	}
 
 	private void extractYear(String filename) {
@@ -58,7 +59,24 @@ public class PDFPaper {
 				this.year = year;
 			}
 		} catch (NumberFormatException e) {
+			System.err.println("No year in PDF supplied! Using current year as year of publication!");
+			this.year = Utils.currentYear;
 		}
 	}
 
+	private void fixGermanUmlauts() {
+		Map<String, String> replaceGlyphons = new HashMap<String, String>();
+		replaceGlyphons.put("A¨", "Ä");
+		replaceGlyphons.put("O¨", "Ö");
+		replaceGlyphons.put("U¨", "Ü");
+		replaceGlyphons.put("a¨", "ä");
+		replaceGlyphons.put("u¨", "ü");
+		replaceGlyphons.put("o¨", "ö");
+
+		replaceGlyphons.entrySet().forEach(e -> replace(e.getKey(), e.getValue()));
+	}
+
+	private void replace(String string, String replace) {
+		content = content.replaceAll(string, replace);
+	}
 }
