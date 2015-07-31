@@ -150,7 +150,7 @@ public class ReferenceListBuilder {
 		}
 		authors.add(author);
 
-		referenceEntry = referenceEntry.replaceFirst(author, "");
+		referenceEntry = referenceEntry.replaceFirst(Pattern.quote(author), "");
 		if (!lastEntry) {
 			extractAuthors(referenceEntry, authors, recursionDepth++);
 		}
