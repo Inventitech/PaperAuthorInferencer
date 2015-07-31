@@ -18,6 +18,15 @@ public class ReferenceListBuilder {
 	private final static String and = "and ";
 	private final static String commaAnd = comma + and;
 
+	private final static Pattern REF_PATTERN = Pattern.compile("^(\\[\\d+\\]).*");
+
+	private final static String AUTHOR_LENIENT_REG_EX = "^((([^.:,]*? ){0,3}[^.:,]{2,}?)(" + comma + "|" + commaAnd
+			+ "| " + and + Pattern.quote(period) + "))+";
+	private final static Pattern AUTHOR_LENIENT_PATTERN = Pattern.compile(AUTHOR_LENIENT_REG_EX);
+
+	private final static String AUTHOR_REG_EX = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,3}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
+	private final static Pattern AUTHOR_PATTERN = Pattern.compile(AUTHOR_REG_EX);
+
 	public ReferenceListBuilder(PDFPaper pdfPaper) {
 		this.pdfPaper = pdfPaper;
 	}
@@ -38,10 +47,9 @@ public class ReferenceListBuilder {
 		String curReference = "";
 
 		ReferenceFindingState state = ReferenceFindingState.NONE;
-		Pattern pattern = compileReferencePattern();
 		for (String line : individualLines) {
 			line = line.trim();
-			Matcher matcher = pattern.matcher(line);
+			Matcher matcher = REF_PATTERN.matcher(line);
 			boolean readReference = matcher.matches();
 			switch (state) {
 			case NEW_REF_TAG:
@@ -55,7 +63,10 @@ public class ReferenceListBuilder {
 
 			case REF_TAG_FOUND:
 				if (readReference) {
-					references.add(createReferenceEntry(curReference));
+					Reference reference = createReferenceEntry(curReference);
+					if (reference != null) {
+						references.add(reference);
+					}
 					curReference = line;
 					break;
 				}
@@ -75,20 +86,18 @@ public class ReferenceListBuilder {
 		pdfPaper.nonRefContent = nonRefContentBuilder.toString();
 	}
 
-	private Pattern compileReferencePattern() {
-		return Pattern.compile("^(\\[\\d+\\]).*");
-	}
-
 	private Reference createReferenceEntry(String referenceEntry) {
-		Matcher matcher = compileReferencePattern().matcher(referenceEntry);
-		matcher.matches();
-		String extractedReference = matcher.group(1);
-		Reference reference = new Reference(extractedReference);
-		referenceEntry = referenceEntry.replaceFirst(Pattern.quote(extractedReference), "");
+		Matcher matcher = REF_PATTERN.matcher(referenceEntry);
+		if (matcher.matches()) {
+			String extractedReference = matcher.group(1);
+			Reference reference = new Reference(extractedReference);
+			referenceEntry = referenceEntry.replaceFirst(Pattern.quote(extractedReference), "");
 
-		addAuthors(referenceEntry, reference);
-		addYear(referenceEntry, reference);
-		return reference;
+			addAuthors(referenceEntry, reference);
+			addYear(referenceEntry, reference);
+			return reference;
+		}
+		return null;
 	}
 
 	static void addAuthors(String referenceEntry, Reference reference) {
@@ -132,14 +141,8 @@ public class ReferenceListBuilder {
 			referenceEntry = referenceEntry.replaceFirst(comma, "");
 		}
 
-		String lenientRegEx = "^((([^\\.:,]*? ){0,3}[^\\.:,]{2,}?)(" + comma + "|" + commaAnd + "| " + and
-				+ Pattern.quote(period) + "))+";
-		Pattern lenientPattern = Pattern.compile(lenientRegEx);
-		Matcher lenientMatcher = lenientPattern.matcher(referenceEntry);
-
-		String authorRegEx = "^(((\\p{Lu}\\. )|([\\p{L}]+\\p{Ll} )){1,3}\\p{Lu}[\\p{L}’-]{1,}\\p{Ll}).*";
-		Pattern authorPattern = Pattern.compile(authorRegEx);
-		Matcher authorMatcher = authorPattern.matcher(referenceEntry);
+		Matcher lenientMatcher = AUTHOR_LENIENT_PATTERN.matcher(referenceEntry);
+		Matcher authorMatcher = AUTHOR_PATTERN.matcher(referenceEntry);
 		String author;
 		if (authorMatcher.find()) {
 			author = authorMatcher.group(1);
