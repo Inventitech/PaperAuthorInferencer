@@ -89,7 +89,6 @@ public class Author implements Comparable<Author> {
 		boolean lastNameMatch = false;
 		boolean firstNameAbbrevMatch = false;
 
-//		boolean isTheSameAuthor = getCanonicalName().equals(otherAuthor.getCanonicalName());
 		boolean isTheSameAuthor = true;
 		if (firstNameAbreviation != null && otherAuthor.firstNameAbreviation != null) {
 			firstNameAbbrevMatch = firstNameAbreviation.equals(otherAuthor.firstNameAbreviation);
@@ -128,9 +127,6 @@ public class Author implements Comparable<Author> {
 		String author1 = makeASCII(getCanonicalName());
 		String author2 = makeASCII(otherAuthor.getCanonicalName());
 		if (StringUtils.getLevenshteinDistance(author1, author2) <= 2) {
-			// System.out.println("WARNING: Authors " + getCanonicalName() + "
-			// and " + otherAuthor.getCanonicalName()
-			// + " equal due to LVD.");
 			return true;
 		}
 

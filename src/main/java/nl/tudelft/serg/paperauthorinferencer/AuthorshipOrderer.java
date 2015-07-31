@@ -55,13 +55,18 @@ public class AuthorshipOrderer {
 
 	public void printAuthors() {
 		try {
-			paper.authors.stream().forEach(a -> System.out.print(a + ", "));
-			System.out.println();
+			authors.stream().sorted(Collections.reverseOrder())
+					.forEach(a -> System.out.println(paper.filename + "," + a.getCanonicalName() + ","
+							+ a.occurenceRatio + "," + a.referenceEntriesRatio + "," + a.eldestRefDelta + ","
+							+ a.newestRefDelta + "," + a.firstOccurrenceRatio + "," + isRealAuthor(a)));
 
-			authors.stream().sorted(Collections.reverseOrder()).forEach(a -> {
-				System.out.println(a.getCanonicalName() + ", " + a.occurenceRatio + ", " + a.referenceEntriesRatio
-						+ ", " + a.eldestRefDelta + ", " + a.newestRefDelta + ", " + a.firstOccurrenceRatio + ", "
-						+ isRealAuthor(a));
+			paper.authors.stream().forEach(a -> {
+				if (authors.contains(a)) {
+					return;
+				}
+				System.out.println(paper.filename + "," + a.getCanonicalName() + "," + a.occurenceRatio + ","
+						+ a.referenceEntriesRatio + "," + a.eldestRefDelta + "," + a.newestRefDelta + ","
+						+ a.firstOccurrenceRatio + "," + isRealAuthor(a));
 			});
 		} catch (NoSuchElementException e) {
 			System.out.print("PDF not analyzable.");
