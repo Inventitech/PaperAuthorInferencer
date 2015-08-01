@@ -55,22 +55,16 @@ public class AuthorshipOrderer {
 
 	public void printAuthors() {
 		try {
-			authors.stream().sorted(Collections.reverseOrder())
-					.forEach(a -> System.out.println(paper.filename + "," + a.getCanonicalName() + ","
-							+ a.occurenceRatio + "," + a.referenceEntriesRatio + "," + a.eldestRefDelta + ","
-							+ a.newestRefDelta + "," + a.firstOccurrenceRatio + "," + isRealAuthor(a)));
+			Consumer<Author> printAuthor = a -> System.out.println(paper.filename + "," + a.getCanonicalName()
+					+ "," + a.occurenceRatio + "," + a.referenceEntriesRatio + "," + a.eldestRefDelta + ","
+					+ a.newestRefDelta + "," + a.firstOccurrenceRatio + "," + isRealAuthor(a));
 
-			paper.authors.stream().forEach(a -> {
-				if (authors.contains(a)) {
-					return;
-				}
-				System.out.println(paper.filename + "," + a.getCanonicalName() + "," + a.occurenceRatio + ","
-						+ a.referenceEntriesRatio + "," + a.eldestRefDelta + "," + a.newestRefDelta + ","
-						+ a.firstOccurrenceRatio + "," + isRealAuthor(a));
-			});
+			authors.stream().sorted(Collections.reverseOrder()).forEach(printAuthor);
+			paper.authors.stream().filter(a -> !authors.contains(a)).forEach(printAuthor);
 		} catch (NoSuchElementException e) {
 			System.out.print("PDF not analyzable.");
 		}
+
 	}
 
 	private boolean isRealAuthor(Author author) {
