@@ -13,7 +13,7 @@ fi
 
 start=`date +%s`
 
-echo "file, author, a.occurenceRatio, a.referenceEntriesRatio, a.eldestRefDelta, a.newestRefDelta, a.firstOccurrenceRatio, isRealAuthor" >> $OUTPUT
+echo "file,author,a.occurenceRatio,a.referenceEntriesRatio,a.eldestRefDelta,a.newestRefDelta,a.firstOccurrenceRatio,isRealAuthor" >> $OUTPUT
 for f in $FILES
 do
 	  echo "Processing file $f ..."

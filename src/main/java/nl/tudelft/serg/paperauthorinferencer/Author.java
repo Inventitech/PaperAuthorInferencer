@@ -63,6 +63,13 @@ public class Author implements Comparable<Author> {
 	private String abbreviate(String name) {
 		return name.substring(0, 1) + ".";
 	}
+	
+	public String getCallableName() {
+		if(!StringUtils.isEmpty(firstName)) {
+			return firstName;
+		}
+		return getCanonicalName();
+	}
 
 	public String getCanonicalName() {
 		if (!StringUtils.isEmpty(firstNameAbreviation) && !StringUtils.isEmpty(lastName)) {
