@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,7 +107,7 @@ public class PDFPaper {
 				Author matchedAuthor = authors.stream().filter(a -> e.toLowerCase().contains(a.lastName.toLowerCase()))
 						.findFirst().get();
 				matchedAuthor.eMail = e;
-			} catch (NoSuchElementException exception) {
+			} catch (Exception exception) {
 				unmatchedEMails.add(e);
 			}
 		});
@@ -117,7 +116,7 @@ public class PDFPaper {
 
 	private Set<String> extractPlainEMailAddresses() {
 		Set<String> emailAddresses = new HashSet<String>();
-		Pattern pattern = Pattern.compile("[^ ]+@[^ ]{3,}");
+		Pattern pattern = Pattern.compile("[^ }\\]]+@[^ ]{3,}");
 		Matcher matcher = pattern.matcher(nonRefContent);
 		while (matcher.find()) {
 			String potentialEMail = matcher.group();
@@ -141,7 +140,7 @@ public class PDFPaper {
 			String mailGroup = matcher.group(1);
 			String domainAndTLD = matcher.group(2);
 
-			List<String> splitFirstParts = Arrays.asList(mailGroup.split("[;,]( )?"));
+			List<String> splitFirstParts = Arrays.asList(mailGroup.split("[;,|/]( )?"));
 			splitFirstParts.forEach(e -> {
 				validateAndAddEmailAddress(emailAddresses, e.trim() + "@" + domainAndTLD);
 			});
