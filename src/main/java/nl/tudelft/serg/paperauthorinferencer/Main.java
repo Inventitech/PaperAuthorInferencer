@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 public class Main {
 	/** Default values, overridden if specified */
 	private static boolean printPDFPath = false;
+	private static boolean extractEmails;
 
 	/** Disable logging */
 	static {
@@ -24,22 +25,28 @@ public class Main {
 		}
 
 		PDFPaper paper = new PDFPaper(pdfDocument);
-
 		ReferenceListBuilder referenceLocator = new ReferenceListBuilder(paper);
 		referenceLocator.locateReferences();
-		ReferenceOccurrenceCounter occurenceCounter = new ReferenceOccurrenceCounter(paper,
-				referenceLocator.references);
-		occurenceCounter.countReferences();
 
-		ReferenceScoreBuilder referenceScoreBuilder = new ReferenceScoreBuilder(occurenceCounter.references);
-		referenceScoreBuilder.normalize();
+		if (extractEmails) {
+			paper.extractEMailAddresses();
+			paper.authors.forEach(a -> System.out.println(paper.title + "," + a.getCanonicalName() + "," + a.eMail));
+			paper.unmatchedEMails.forEach(a -> System.out.println(paper.title + "," + "," + a));
+		} else {
+			ReferenceOccurrenceCounter occurenceCounter = new ReferenceOccurrenceCounter(paper,
+					referenceLocator.references);
+			occurenceCounter.countReferences();
 
-		AuthorshipOrderer orderer = new AuthorshipOrderer(paper);
-		orderer.buildAuthorList(occurenceCounter.references);
+			ReferenceScoreBuilder referenceScoreBuilder = new ReferenceScoreBuilder(occurenceCounter.references);
+			referenceScoreBuilder.normalize();
 
-		orderer.printAuthors();
-		if (printPDFPath) {
-			System.out.println();
+			AuthorshipOrderer orderer = new AuthorshipOrderer(paper);
+			orderer.buildAuthorList(occurenceCounter.references);
+
+			orderer.printAuthors();
+			if (printPDFPath) {
+				System.out.println();
+			}
 		}
 	}
 
@@ -48,6 +55,9 @@ public class Main {
 		Option printPDFPathOption = new Option("f", "print-file-name", false,
 				"Prints the file that is currently analyzed.");
 		options.addOption(printPDFPathOption);
+
+		Option extractEMailsOption = new Option("e", "extract-email-addresses", false, "Extracts the email addresses.");
+		options.addOption(extractEMailsOption);
 
 		try {
 			CommandLine line = new DefaultParser().parse(options, args);
@@ -58,6 +68,7 @@ public class Main {
 			pdfDocument = line.getArgList().get(0);
 
 			printPDFPath = line.hasOption(printPDFPathOption.getOpt());
+			extractEmails = line.hasOption(extractEMailsOption.getOpt());
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

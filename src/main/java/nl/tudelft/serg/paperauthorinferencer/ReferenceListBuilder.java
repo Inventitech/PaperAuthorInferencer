@@ -78,7 +78,7 @@ public class ReferenceListBuilder {
 				if (line.matches("(?i)^(\\d. )*(references|literature)$")) {
 					state = ReferenceFindingState.NEW_REF_TAG;
 				} else {
-					nonRefContentBuilder.append(line).append(pdfPaper.lineSeparator);
+					nonRefContentBuilder.append(line).append(" ");
 				}
 			}
 		}

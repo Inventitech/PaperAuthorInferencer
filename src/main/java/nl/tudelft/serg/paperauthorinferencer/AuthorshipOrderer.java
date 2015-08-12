@@ -39,25 +39,27 @@ public class AuthorshipOrderer {
 				author.occurenceRatio += r.occurrenceRatio;
 				author.referenceEntriesRatio += r.referenceEntriesRatio;
 				int yearDiff = paper.year - r.year;
-				if (yearDiff >= 0) {
+				if (yearDiff >= 0 && yearDiff <= 200) {
 					if (yearDiff < author.newestRefDelta) {
 						author.newestRefDelta = yearDiff;
 					}
 					if (yearDiff > author.eldestRefDelta) {
 						author.eldestRefDelta = yearDiff;
 					}
+					author.yearDiffCorrect = true;
+				} else {
+					author.yearDiffCorrect = false;
 				}
 				author.firstOccurrenceRatio = (author.firstOccurrenceRatio < r.firstOccurrenceRatio
 						? author.firstOccurrenceRatio : r.firstOccurrenceRatio);
+				author.replaceByMissingValues = false;
 			}
 		});
 	}
 
 	public void printAuthors() {
 		try {
-			Consumer<Author> printAuthor = a -> System.out.println(paper.filename + "," + a.getCanonicalName()
-					+ "," + a.occurenceRatio + "," + a.referenceEntriesRatio + "," + a.eldestRefDelta + ","
-					+ a.newestRefDelta + "," + a.firstOccurrenceRatio + "," + isRealAuthor(a));
+			Consumer<Author> printAuthor = a -> System.out.println(paper.filename + "," + a + "," + isRealAuthor(a));
 
 			authors.stream().sorted(Collections.reverseOrder()).forEach(printAuthor);
 			paper.authors.stream().filter(a -> !authors.contains(a)).forEach(printAuthor);

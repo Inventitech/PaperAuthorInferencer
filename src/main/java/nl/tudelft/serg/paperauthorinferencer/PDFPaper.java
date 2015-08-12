@@ -2,11 +2,17 @@ package nl.tudelft.serg.paperauthorinferencer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 
@@ -24,7 +30,11 @@ public class PDFPaper {
 
 	public Set<Author> authors = new HashSet<Author>();
 
+	public Set<String> unmatchedEMails = new HashSet<String>();
+
 	public String filename;
+
+	public String title;
 
 	public PDFPaper(String filename) {
 		this.filename = filename;
@@ -32,6 +42,7 @@ public class PDFPaper {
 		PDDocument pdfDocument = null;
 		try {
 			pdfDocument = PDDocument.load(filename, true);
+			title = pdfDocument.getDocumentInformation().getTitle();
 			Set<String> authorNames = new HashSet<String>();
 			ReferenceListBuilder.extractAuthors(makeASCIILike(pdfDocument.getDocumentInformation().getAuthor() + "."),
 					authorNames);
@@ -86,5 +97,55 @@ public class PDFPaper {
 
 	private void replace(String string, String replace) {
 		content = content.replaceAll(string, replace);
+	}
+
+	public void extractEMailAddresses() {
+		Set<String> emailAddresses = new HashSet<String>();
+		emailAddresses.addAll(extractPlainEMailAddresses());
+		emailAddresses.addAll(extractEnclosedEMailAddresses());
+		emailAddresses.forEach(e -> {
+			try {
+				Author matchedAuthor = authors.stream().filter(a -> e.toLowerCase().contains(a.lastName.toLowerCase()))
+						.findFirst().get();
+				matchedAuthor.eMail = e;
+			} catch (NoSuchElementException exception) {
+				unmatchedEMails.add(e);
+			}
+		});
+
+	}
+
+	private Set<String> extractPlainEMailAddresses() {
+		Set<String> emailAddresses = new HashSet<String>();
+		Pattern pattern = Pattern.compile("[^ ]+@[^ ]{3,}");
+		Matcher matcher = pattern.matcher(nonRefContent);
+		while (matcher.find()) {
+			String potentialEMail = matcher.group();
+			validateAndAddEmailAddress(emailAddresses, potentialEMail);
+		}
+		return emailAddresses;
+	}
+
+	private void validateAndAddEmailAddress(Set<String> emailAddresses, String potentialEMail) {
+		EmailValidator emailValidator = EmailValidator.getInstance();
+		if (emailValidator.isValid(potentialEMail)) {
+			emailAddresses.add(potentialEMail);
+		}
+	}
+
+	private Set<String> extractEnclosedEMailAddresses() {
+		Set<String> emailAddresses = new HashSet<String>();
+		Pattern pattern = Pattern.compile("[{\\[]([^@]+?)[\\]}]@([^ ]{3,})");
+		Matcher matcher = pattern.matcher(nonRefContent);
+		while (matcher.find()) {
+			String mailGroup = matcher.group(1);
+			String domainAndTLD = matcher.group(2);
+
+			List<String> splitFirstParts = Arrays.asList(mailGroup.split("[;,]( )?"));
+			splitFirstParts.forEach(e -> {
+				validateAndAddEmailAddress(emailAddresses, e.trim() + "@" + domainAndTLD);
+			});
+		}
+		return emailAddresses;
 	}
 }

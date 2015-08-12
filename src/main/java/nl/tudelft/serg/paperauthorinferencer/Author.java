@@ -17,12 +17,18 @@ public class Author implements Comparable<Author> {
 	public String lastName;
 
 	public String fullName;
+	
+	public String eMail;
 
 	double referenceEntriesRatio = 0;
 	double occurenceRatio = 0;
 	double firstOccurrenceRatio = 1;
 	int eldestRefDelta = 0;
 	int newestRefDelta = Integer.MAX_VALUE;
+
+	static final char MISSING_VALUE_CHAR = '?';
+	boolean replaceByMissingValues = true;
+	boolean yearDiffCorrect = false;
 
 	public Author(String fullName) {
 		this.fullName = fullName;
@@ -146,6 +152,16 @@ public class Author implements Comparable<Author> {
 
 	@Override
 	public String toString() {
-		return getCanonicalName();
+		if (replaceByMissingValues) {
+			return getCanonicalName() + "," + MISSING_VALUE_CHAR + "," + MISSING_VALUE_CHAR + "," + MISSING_VALUE_CHAR
+					+ "," + MISSING_VALUE_CHAR + "," + MISSING_VALUE_CHAR;
+		}
+
+		String yearDiff = MISSING_VALUE_CHAR + "," + MISSING_VALUE_CHAR;
+		if (yearDiffCorrect) {
+			yearDiff = eldestRefDelta + "," + newestRefDelta;
+		}
+		return getCanonicalName() + "," + occurenceRatio + "," + referenceEntriesRatio + "," + yearDiff + ","
+				+ firstOccurrenceRatio;
 	}
 }
