@@ -31,6 +31,10 @@ public class Main {
 
 		if (extractEmails) {
 			paper.extractEMailAddresses();
+			paper.title = paper.title + ",";
+			if (paper.title.toLowerCase().contains("workshop")) {
+				paper.title = "," + paper.title;
+			}
 			paper.authors.stream().filter(a -> !StringUtils.isEmpty(a.eMail)).forEach(a -> System.out
 					.println(paper.year + "," + paper.title + "," + a.getCallableName() + "," + a.eMail));
 			paper.unmatchedEMails.forEach(a -> System.out.println(paper.year + "," + paper.title + "," + "," + a));

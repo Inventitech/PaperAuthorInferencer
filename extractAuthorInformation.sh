@@ -3,7 +3,7 @@
 # make sure we get proper decimals
 LANG=en_us_8859_1
 
-FILES=../icse-proceedings/icse2010/*
+FILES=../icse-proceedings/combined/*
 OUTPUT=authors.csv
 
 if [ -f $OUTPUT ] 
@@ -13,7 +13,7 @@ fi
 
 start=`date +%s`
 
-echo "year,paper title,author name,email " >> $OUTPUT
+echo "year,paper title,workshop title,author name,email " >> $OUTPUT
 for f in $FILES
 do
 	  echo "Processing file $f ..."
