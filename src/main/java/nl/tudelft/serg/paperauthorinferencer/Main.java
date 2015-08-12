@@ -30,8 +30,9 @@ public class Main {
 
 		if (extractEmails) {
 			paper.extractEMailAddresses();
-			paper.authors.forEach(a -> System.out.println(paper.title + "," + a.getCanonicalName() + "," + a.eMail));
-			paper.unmatchedEMails.forEach(a -> System.out.println(paper.title + "," + "," + a));
+			paper.authors.forEach(a -> System.out
+					.println(paper.year + "," + paper.title + "," + a.firstName + " " + a.lastName + "," + a.eMail));
+			paper.unmatchedEMails.forEach(a -> System.out.println(paper.year + "," + paper.title + "," + "," + a));
 		} else {
 			ReferenceOccurrenceCounter occurenceCounter = new ReferenceOccurrenceCounter(paper,
 					referenceLocator.references);
