@@ -41,7 +41,8 @@ public class PDFPaper {
 		PDDocument pdfDocument = null;
 		try {
 			pdfDocument = PDDocument.load(filename, true);
-			title = pdfDocument.getDocumentInformation().getTitle();
+			title = pdfDocument.getDocumentInformation().getTitle().replaceAll("<.*?>", "");
+
 			Set<String> authorNames = new HashSet<String>();
 			ReferenceListBuilder.extractAuthors(makeASCIILike(pdfDocument.getDocumentInformation().getAuthor() + "."),
 					authorNames);
