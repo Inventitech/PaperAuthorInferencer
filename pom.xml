@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>nl.tudelft.swerl</groupId>
   <artifactId>paper-author-inferencer</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
 	<name>PaperAuthorInferencer</name>
-	<description>PaperAuthorInferencer tries to infer the authors of a given paper in PDF format without looking at the author line.</description>
+	<description>PaperAuthorInferencer tries to infer the authors of a given paper in PDF format without looking at the author line. It can also give you the email addresses of researchers.</description>
 	<build>
 		<plugins>
 			<plugin>
